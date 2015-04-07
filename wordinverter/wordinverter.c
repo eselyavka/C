@@ -4,6 +4,7 @@
 
 void inverter(char *);
 void help(char *);
+int getlen(char *);
 
 int main(int argc, char *argv[]) {
 
@@ -33,8 +34,12 @@ void help(char *scriptName) {
 
 void inverter(char *words) {
   int i;
-  for (i=strlen(words)-1; i>=0; i--) {
+  for (i=getlen(words)-1; i>=0; i--) {
     printf("%c",words[i]);
   }
   printf("\n");
+}
+
+int getlen(char *words) {
+    return strlen(words);
 }
