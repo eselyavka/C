@@ -11,6 +11,12 @@ zmq-client: zmq-client.o
 zmq-client.o: zmq-client.c
 	$(CC) $(CFLAGS) $(LIBS) zmq-client.c
 
+zmq-mt-client: zmq-mt-client.o
+	$(CC) $(LIBS) zmq-mt-client.o -o zmq-mt-client
+
+zmq-mt-client.o: zmq-mt-client.c
+	$(CC) $(CFLAGS) $(LIBS) zmq-mt-client.c
+
 zmq-server: zmq-server.o
 	$(CC) $(LIBS) zmq-server.o -o zmq-server
 
