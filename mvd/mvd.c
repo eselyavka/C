@@ -14,94 +14,94 @@
 #include "ini.h"
 #include <stdlib.h>
 
-int MAXPATHLEN=1024;
+# define MAXPATHLEN 1024
 
-int MAXUSERS=100;
+# define MAXUSERS 100
 
-char RUNNING_DIR[255];
-char LOCK_FILE[255];
-char LOG_FILE[255];
-char DB_LOG_FILE[255];
-
-typedef struct
-{
-    const char* rdir;
+typedef struct {
+    const char* running_dir;
     const char* lockfile;
     const char* logfile;
+} general_settings;
+
+typedef struct {
     const char* dblogfile;
+} db_settings;
+
+typedef struct {
     const char* title;
     const char* from;
     const char* to;
     const char* email;
-} config_section [100];
+} user_settings [MAXUSERS];
 
-typedef struct 
-{
-	config_section sections;
-} configuration;
+typedef struct {
+    general_settings gs;
+    db_settings dbs;
+    user_settings us;
+} settings;
 
+char* my_time() {
+    #define FORMAT "%Y-%m-%d %H:%M:%S"
+    time_t rawtime;
+    struct tm *ptm;
+    char *timestr;
 
-char* my_time(char* outtime)
-{
-	char* timestr[100];
-	outtime = (char *) calloc(strlen(timestr)+1, sizeof(char));
-	struct tm *ptr;
-	time_t lt;
-	lt=time(NULL);
-	ptr=localtime(&lt);
-	strftime(timestr,99,"%Y-%m-%d %H:%M:%S",ptr);
-	strcpy(outtime, timestr);
-	return outtime;
+    time(&rawtime);
+
+    ptm=localtime(&rawtime);
+    timestr=malloc(sizeof(strlen(FORMAT)+1));
+    strftime(timestr,99,FORMAT,ptm);
+    return timestr;
 }
 
-static int handler(void* user, const char* section, const char* name, const char* value)
-{
-	configuration* pconfig = (configuration*)user;
-	#define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-	if (MATCH("general", "runnig_dir"))
-	{
-		pconfig->sections[0].rdir = strdup(value);
-	}
-	else if (MATCH("general", "lock_file"))
-	{
-		pconfig->sections[0].lockfile = strdup(value);
-	}
-	else if (MATCH("general", "log_file"))
-	{
-		pconfig->sections[0].logfile = strdup(value);
-	}	
-	else if (MATCH("db", "db_log_file"))
-	{
-		pconfig->sections[0].dblogfile = strdup(value);
-	}
-	else if (strncmp(section, "user", 4) == 0)
-	{
-		int section_num = atoi(section+4)-1;
-		if (section_num>=0 && section_num<MAXUSERS)
-		{
-			if (strcmp(name, "title") == 0)
-			{
-				pconfig->sections[section_num].title = strdup(value);
-			}	
-			else if (strcmp(name, "from_dir") == 0)
-			{
-				pconfig->sections[section_num].from = strdup(value);
-			}
-			else if (strcmp(name, "to_dir") == 0)
-			{
-				pconfig->sections[section_num].to = strdup(value);
-			}
-			else if (strcmp(name, "email") == 0)
-			{
-				pconfig->sections[section_num].email = strdup(value);
-			}
-		}
-		else
-		{
-			syslog(LOG_WARNING, "Incorrect user or too much users, MAX is 100 or section num bigger then 100 or section isn't numeric\n");
-			exit(1);
-		}
-	}	
+static int handler(void* user, const char* section, const char* name, const char* value) {
+    settings* psettings = (settings*)user;
+    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+    if (MATCH("general", "runnig_dir"))
+    {
+        psettings->gs.running_dir = strdup(value);
+    }
+    else if (MATCH("general", "lock_file"))
+    {
+        psettings->gs.lockfile = strdup(value);
+    }
+    else if (MATCH("general", "log_file"))
+    {
+        psettings->gs.logfile = strdup(value);
+    }
+    else if (MATCH("db", "db_log_file"))
+    {
+        psettings->dbs.dblogfile = strdup(value);
+    }
+    else if (strncmp(section, "user", 4) == 0)
+    {
+        int section_num = atoi(section+4)-1;
+        if (section_num>=0 && section_num<MAXUSERS)
+        {
+            if (strcmp(name, "title") == 0)
+            {
+                psettings->sections[section_num].title = strdup(value);
+            }
+            else if (strcmp(name, "from_dir") == 0)
+            {
+                psettings->sections[section_num].from = strdup(value);
+            }
+            else if (strcmp(name, "to_dir") == 0)
+            {
+                psettings->sections[section_num].to = strdup(value);
+            }
+            else if (strcmp(name, "email") == 0)
+            {
+                psettings->sections[section_num].email = strdup(value);
+            }
+        }
+        else
+        {
+            syslog(LOG_WARNING, "Incorrect user or too much users, MAX is 100 or section num bigger then 100 or section isn't numeric\n");
+            exit(1);
+        }
+    }
 }
 
 void log_message(char *filename, char *message)
