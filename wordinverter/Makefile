@@ -1,6 +1,6 @@
-inverter: inverter.o
-	gcc inverter.o -o inverter
-inverter.o: inverter.c
-	gcc -c inverter.c
+inverter: wordinverter.o
+	gcc wordinverter.o -o wordinverter
+inverter.o: wordinverter.c
+	gcc -c wordinverter.c
 clean:
 	rm -f *.o *.core
