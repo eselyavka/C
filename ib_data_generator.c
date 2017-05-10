@@ -53,7 +53,7 @@ int main(void) {
     irow.payload.f3=127;
     f4.L=strlen(payload);
     f4.payload = (char *) malloc(sizeof(char) * f4.L);
-    strcpy(f4.payload, payload);
+    strncpy(f4.payload, payload, f4.L);
     irow.payload.f4=&f4;
     irow.payload.f5=10000000;
     irow.payload.f6=LLONG_MAX;
