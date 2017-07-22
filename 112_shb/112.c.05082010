@@ -1,0 +1,315 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
+
+#define ROW 398
+#define COL 6
+
+struct {
+	char rz[10];
+	char num_01[30];
+	char num_02[30];
+	char num_03[30];
+	char num_04[30];
+	char num_05[30];
+	
+} mas[ROW];
+
+void init_list(void);
+int menu(void);
+void find(void);
+void insert(int num_of_srv, int mas_num);
+void replace(void);
+
+int main(void)
+{
+	int choice;
+	init_list();
+	//printf("RZ: %s, FIRE_BRIG: %s, POLICY: %s, EMERG: %s, GAZ: %s TERROR: %s\n",mas[396].rz,mas[397].num_01,mas[397].num_02,mas[397].num_03,mas[397].num_04,mas[397].num_05);
+	while (1)
+	{
+		choice=menu();
+		switch(choice)
+		{
+			case 1: find();
+				break;
+			case 2: replace();
+				break;
+			case 3: exit(1);
+				break;
+			case 4: exit(1);
+				break;
+			case 5: exit(1);
+				break;
+			case 6: exit(1);
+			
+		}
+	}
+
+	return 0;	
+}
+
+void init_list(void)
+{
+	FILE *fp;
+
+	char ch;
+
+	char *a;
+	char *b;
+	char *c;
+	char *d;
+	char *e;
+	char *f;
+
+	int i=0;
+	if ((fp=fopen("nwgsm112.shb", "r")) == NULL)
+	{
+		printf("Can't open shb file.\n");
+		exit(1);
+	}
+
+	rewind(fp);
+	fseek(fp,0,SEEK_END);
+	long int size=ftell(fp);
+	//printf("%d\n", size); 
+	char str[size];
+	rewind(fp);
+	//printf("%d\n", sizeof(mas));
+	while (!feof(fp))
+	{
+		ch=getc(fp);
+		if (isdigit(ch))
+		{	
+			fseek(fp,-1,SEEK_CUR);
+			fgets(str,size,fp);
+			a=strtok(str, ",");
+			b=strtok(str+strlen(a)+1,",");
+			c=strtok(str+strlen(a)+strlen(b)+2,",");
+			d=strtok(str+strlen(a)+strlen(b)+strlen(c)+3,",");
+			e=strtok(str+strlen(a)+strlen(b)+strlen(c)+strlen(d)+4,",");
+			f=strtok(str+strlen(a)+strlen(b)+strlen(c)+strlen(d)+strlen(e)+5,",");
+		
+			if (strlen(a)>10) 
+			{
+				printf("Can't read file. RZ more then 10 char, %s", a);
+				exit(1);
+			}
+			else
+			{
+				strncpy(mas[i].rz,a,10);
+			}
+			
+			if (strlen(b)>30)
+			{
+				printf("Can't read file. FIRE more then 30 char, %s", b);
+				exit(1);
+			}
+			else
+			{
+				strncpy(mas[i].num_01,b,30);
+			}
+
+			if (strlen(c)>30)
+			{
+				printf("Can't read file. POLICY more then 30 char, %s", c);
+				exit(1);
+			}
+			else
+			{
+				strncpy(mas[i].num_02,c,30);
+			}
+
+			if (strlen(d)>30)
+			{
+				printf("Can't read file. EMERG more then 30 char, %s", d);
+				exit(1);
+			}
+			else
+			{
+				strncpy(mas[i].num_03,d,30);
+			}
+
+			if (strlen(e)>30)
+			{
+				printf("Can't read file. GAZ more then 30 char, %s", e);
+				exit(1);
+			}
+			else
+			{
+				strncpy(mas[i].num_04,e,30);
+			}
+
+			if (strlen(f)>30)
+			{
+				printf("Can't read file. ANTITERROR more then 30 char, %s", f);
+				exit(1);
+			}
+			else
+			{
+				strncpy(mas[i].num_05,f,30);
+			}
+
+			i++;
+		}
+	}
+	fclose(fp);	
+}
+int menu(void)
+{
+	char s[80];
+	int c;
+	printf("1. Найти RZ\n");
+	printf("2. Заменить RZ\n");
+	printf("3. Добавить RZ\n");
+	printf("4. Удалить RZ\n");
+	printf("5. Создать файл\n");
+	printf("6. Выход\n");
+
+	do
+	{
+		printf("\nВведите номер нужного пункта: ");
+		scanf("%s",s);
+		if (strlen(s)>80||strlen(s)==0)
+		{
+			printf("Неккоректное значение\n");
+		}
+		c=atoi(s);
+	}while(c<0 || c>6);
+	return c;
+}
+
+
+void find(void)
+{
+	char s[80];
+	register int i;
+
+	printf("\n\n\t1.1 Введите номер RZ: ");
+	scanf("%s",s);
+	if (strlen(s)>80||strlen(s)==0)
+	{
+		printf("Неккоректное значение RZ\n");
+	}
+	else
+	{
+		for (i=0; i<ROW; i++)
+		{
+			if(strcmp(s,mas[i].rz)==0) 
+			{	
+			printf("\n\nRZ: %s, Пожарные: %s, Полиция: %s, Скорая: %s, Газовая служба: %s Антитеррор: %s\n\n",mas[i].rz,mas[i].num_01,mas[i].num_02,mas[i].num_03,mas[i].num_04,mas[i].num_05);
+			}
+		}
+	}
+}
+
+void insert(int num_of_srv, int mas_num)
+{
+	char s[80];
+	bool flag=true;
+
+	strncpy(s,"\0",80);	
+	printf("\t\t\tВведите новый номер телефона: ");
+	scanf("%s",s);
+
+	if (strlen(s)>30 || strlen(s)==0)
+	{
+		printf("Неккоректное значение телефона\n");
+	}
+
+	int j=0;
+	for (j=0; j<strlen(s); j++)
+	{
+		if (!isdigit(s[j]))
+		{
+			flag=false;	
+		}
+	}
+
+	if (flag == true)
+	{
+		if (num_of_srv == 1)
+		{
+			strncpy(mas[mas_num].num_01,s,30);
+		} else if (num_of_srv == 2)
+		{
+			strncpy(mas[mas_num].num_02,s,30);
+		} else if (num_of_srv == 3)
+		{
+			strncpy(mas[mas_num].num_03,s,30);
+		} else if (num_of_srv == 4)
+		{
+			strncpy(mas[mas_num].num_04,s,30);
+		} else if (num_of_srv == 5)
+		{
+			strncpy(mas[mas_num].num_05,s,30);
+		}
+	}
+	else
+	{
+		printf("Номер должен состоять из числовых значений!\n");
+	}
+	
+}
+
+void replace(void)
+{
+	char s[80];
+	register int i;
+	int f=0;
+	int c;
+
+	printf("\n\n\t2.1 Введите номер RZ: ");
+	scanf("%s",s);
+	
+	if (strlen(s)>80||strlen(s)==0)
+	{
+		printf("Неккоректное значение RZ\n");
+	}
+
+	for (i=0; i<ROW; i++)
+	{
+		if(strcmp(s,mas[i].rz)==0) 
+		{
+			f=i;
+			strncpy(s,"\0",80);	
+		}
+	}
+
+	if (f!=0)
+	{
+		printf("\n\t\t1. Изменить телефон пожарной службы\n");	
+		printf("\n\t\t2. Изменить телефон милиции\n");	
+		printf("\n\t\t3. Изменить телефон скорой\n");	
+		printf("\n\t\t4. Изменить телефон газовой службы\n");	
+		printf("\n\t\t5. Изменить телефон антитеррор\n");	
+		
+		do
+		{
+			printf("\n\t\tВведите необходимый пункт меню: ");
+			scanf("%s",s);
+			c=atoi(s);
+		}while(c<0 || c>5);
+		
+		switch (c)
+		{
+			case 1: insert(1,f);
+				break;
+			case 2: insert(2,f);
+				break;
+			case 3: insert(3,f);
+				break;
+			case 4: insert(4,f);
+				break;
+			case 5: insert(5,f);
+				break;
+		}
+	}
+	else
+	{
+		printf("Нет такой RZ\n");
+	}
+		
+}
